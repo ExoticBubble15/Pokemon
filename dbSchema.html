@@ -1,0 +1,25 @@
+<Pokemon> (db)
+
+	<Series> (table)
+		<seriesTitle/>
+	</Series>
+
+	<Expansion> (table)
+		<seriesTitle/> (foreign key to Series/seriesTitle)
+		<expansionTitle/>
+		<releaseDate/>
+	</Expansion>
+
+	<Cards> (table)
+		<expansionTitle/> (foreign key to Expansion/expansionTitle)
+		<cardTitle/>
+		<rarity/>
+		<pokemon/>
+	</Cards>
+
+	<favoriteRanking> (table) (wait for Reddit: https://www.reddit.com/r/pokemon/comments/1jftp0u/2025_favourite_pok%C3%A9mon_survey_update/)
+		<pokemon/>
+		<favoriteRank/>
+	</favoriteRanking>
+
+</Pokemon>>
