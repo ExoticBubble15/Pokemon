@@ -1,7 +1,5 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 import sqlite3
 
@@ -37,26 +35,30 @@ for table in tables:
 		if seriesTitle == "Mega Evolution": #stopping point
 			break
 		elif seriesTitle in ["Sword & Shield", "Scarlet & Violet"]: #only include SWSH and SV
-			print(seriesTitle)
+			print("SERIES:", seriesTitle)
 			cursor.execute(f"INSERT INTO Series VALUES (\"{seriesTitle}\")")
 			expansionCount = 0
 			for setRow in rows[1:]:
-				#['set #', 'symbol' (empty string), 'logo' (empty string), 'expansion name', 'expansion type', '# cards', 'release date', 'abbreviation']
-				cols = setRow.find_elements(By.TAG_NAME, "td")
-				if not whiteFlareException:
-					expansionTitle = cols[3].text
-					if expansionTitle == "Scarlet & Violet—Black Bolt":
-						whiteFlareException = True
-					releaseDate = stringDateToISO(cols[6].text)
-				else:
-					expansionTitle = "Scarlet & Violet—White Flare"
-				print(f"{seriesTitle}, {expansionTitle}, {releaseDate}")
-				cursor.execute(f"INSERT INTO Expansion VALUES (\"{seriesTitle}\", \"{expansionTitle}\", \"{releaseDate}\")")
-				expansionCount += 1
+				try:
+					#['set #', 'symbol' (empty string), 'logo' (empty string), 'expansion name', 'expansion type', '# cards', 'release date', 'abbreviation']
+					cols = setRow.find_elements(By.TAG_NAME, "td")
+					if not whiteFlareException:
+						expansionTitle = cols[3].text
+						if expansionTitle == seriesTitle:
+							expansionTitle += "—Base Set"
+						if expansionTitle == "Scarlet & Violet—Black Bolt":
+							whiteFlareException = True
+						releaseDate = stringDateToISO(cols[6].text)
+					else:
+						expansionTitle = "Scarlet & Violet—White Flare"
+					print(f"{seriesTitle}, {expansionTitle}, {releaseDate}")
+					cursor.execute(f"INSERT INTO Expansion VALUES (\"{seriesTitle}\", \"{expansionTitle}\", \"{releaseDate}\")")
+					expansionCount += 1
+				except:
+					pass
 			print(expansionCount, "\n")
 	except Exception as e:
 		print(e)
-		pass
 
 connection.commit()
 driver.close()

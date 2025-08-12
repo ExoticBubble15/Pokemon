@@ -1,9 +1,10 @@
-# from rapidfuzz import fuzz
-# import jaro
-# import time
+from rapidfuzz import fuzz, process
+import jaro
+import time
+import sqlite3
 
-# s2 = "Amoonguss (Master Ball Pattern)"
-# s1 = "Amoonguss"
+s2 = "Amoonguss (Master Ball Pattern)"
+s1 = "Amoonguss"
 
 # s = time.time()
 # print(fuzz.ratio(s1, s2), time.time()-s)
@@ -12,6 +13,18 @@
 # s = time.time()
 # print(fuzz.token_set_ratio(s1, s2), time.time()-s)
 
+db = "pokemonTCG.db"
+connection = sqlite3.connect(db)
+cursor = connection.cursor()
+
+seriesList = [i[0] for i in cursor.execute("SELECT expansionTitle FROM Expansion").fetchall()]
+s = "SV: Scarlet & Violet 151 Price Guide"
+
+print(seriesList)
+res = (process.extractOne(s, seriesList, scorer=fuzz.partial_ratio))[0]
+print(res)
+
+"""
 #formats "{month} {day}, {year}" into ISO ("{year}-{month number}-{day number}")
 MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 def stringDateToISO(date):
@@ -43,3 +56,4 @@ test_dates = [
 
 for i in test_dates:
 	print(stringDateToISO(i))
+"""

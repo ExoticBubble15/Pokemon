@@ -3,6 +3,12 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
+from rapidfuzz import fuzz, process
+import sqlite3
+
+db = "pokemonTCG.db"
+connection = sqlite3.connect(db)
+cursor = connection.cursor()
 
 link = "https://www.tcgplayer.com/categories/trading-and-collectible-card-games/pokemon/price-guides/sv06-twilight-masquerade?srsltid=AfmBOorq2nlLlF6Muig2hAV-yDJyQ-GL6jAfwJFAdi5-6Xy0Tcigv0UY"
 # link = input("tcg pull price guide link: ")
@@ -15,10 +21,14 @@ driver.get(link)
 expand = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "/html[1]/body[1]/div[2]/div[1]/div[1]/section[2]/section[1]/div[3]/div[1]/div[1]/div[1]/div[3]/button[1]/span[1]")))
 expand.click()
 
+#extract set title consistent with db
 setTitle = driver.find_element(By.TAG_NAME, "h1").text
 setTitle = setTitle.split("\n")[1]
-setTitle = setTitle[setTitle.index(": ")+2:setTitle.index(" Price Guide")]
+expansionList = [i[0] for i in cursor.execute("SELECT expansionTitle FROM Expansion").fetchall()]
+setTitle = (process.extractOne(setTitle, expansionList, scorer=fuzz.partial_ratio))[0]
 
+#TODO: implement adding cards to db
+#use token matching?
 evens = driver.find_elements(By.CLASS_NAME, "is-even")
 odds = driver.find_elements(By.CLASS_NAME, "is-odd")
 rarities = {}
